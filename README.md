@@ -66,6 +66,43 @@ Requires Node 18+.
 
 ---
 
+## Website + installable app (PWA)
+
+This is a Progressive Web App, so one codebase is **both** a website and a phone-installable
+app — no app store required.
+
+- **As a website:** it deploys to GitHub Pages (below) and is just a URL anyone can open.
+- **As a mobile app:** open that URL on a phone → browser menu → **Add to Home Screen**.
+  You get a Civvy icon, a full-screen launch (no browser chrome), and offline caching via a
+  service worker (`vite-plugin-pwa`).
+
+### Deploying to GitHub Pages
+
+A GitHub Actions workflow (`.github/workflows/deploy.yml`) builds and publishes on every
+push to the draft branch or `main`. **One-time setup** in the GitHub repo:
+
+> **Settings → Pages → Build and deployment → Source: _GitHub Actions_.**
+
+After that, every push auto-deploys. The live site will be at:
+
+```
+https://<your-org-or-user>.github.io/<repo>/
+```
+
+i.e. **https://sjacobs6369-dev.github.io/Civvy/** for this repo.
+
+The build's base path is set automatically from the repo name (`BASE_PATH` in the
+workflow), and the app uses hash-based routing so deep links and refreshes work on a Pages
+subpath. To deploy somewhere else (Netlify, Vercel, S3, a subfolder), just build with the
+right base:
+
+```bash
+BASE_PATH=/ npm run build      # serving from a domain root
+BASE_PATH=/some/path/ npm run build
+```
+
+---
+
 ## Project structure
 
 ```
