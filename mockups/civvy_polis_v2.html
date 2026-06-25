@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Civvy — Polis v2</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#12213D;--blue:#1B3A6B;--accent:#2E6BE6;--sky:#E8F0FD;
+  --gold:#C8A84B;--green:#1A7A5E;--green-light:#E6F4F0;
+  --warm:#F7F5F0;--ink:#1A1A2E;--muted:#6B7280;--border:#E5E7EB;
+  --red:#C0392B;--purple:#7C3AED;--teal:#0D9488;--orange:#EA580C;
+}
+
+body{background:#0D1520;display:flex;align-items:flex-start;justify-content:center;
+  min-height:100vh;font-family:'DM Sans',sans-serif;padding:40px 20px;gap:44px;flex-wrap:wrap}
+
+/* ── INFO PANEL ── */
+.info{width:220px;flex-shrink:0;padding-top:52px}
+.wordmark{font-family:'DM Serif Display',serif;font-size:28px;color:white;margin-bottom:4px}
+.subtitle{color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:20px;line-height:1.5}
+.feat-block{margin-bottom:16px}
+.feat-title{color:rgba(255,255,255,0.65);font-size:10px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em}
+.feat{color:rgba(255,255,255,0.4);font-size:11px;line-height:1.65;display:flex;gap:7px;margin-bottom:4px}
+.feat::before{content:'→';color:var(--accent);flex-shrink:0}
+.note-box{background:rgba(46,107,230,0.08);border:1px solid rgba(46,107,230,0.2);border-radius:10px;padding:11px 13px;margin-top:18px}
+.note-title{color:rgba(255,255,255,0.5);font-size:9px;text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:8px}
+.note-row{font-size:10px;color:rgba(255,255,255,0.38);line-height:1.6;margin-bottom:5px;display:flex;gap:6px}
+.note-row::before{content:'✓';color:var(--accent);flex-shrink:0}
+
+/* ── PHONE ── */
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.phone-label{color:rgba(255,255,255,0.28);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;text-align:center;max-width:375px;line-height:1.6}
+.phone{width:375px;background:var(--warm);border-radius:44px;
+  box-shadow:0 0 0 10px #1a2230,0 0 0 12px #0d1520,0 40px 80px rgba(0,0,0,0.7);
+  overflow:hidden;position:relative;min-height:660px}
+.status-bar{background:var(--navy);padding:12px 24px 8px;display:flex;justify-content:space-between}
+.time{color:white;font-size:13px;font-weight:600}
+.icons{color:white;font-size:12px}
+
+/* ── HEADER ── */
+.polis-header{background:linear-gradient(160deg,#1A1040,var(--navy));padding:13px 20px 0}
+.ph-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.ph-top h2{color:white;font-family:'DM Serif Display',serif;font-size:22px}
+.ph-actions{display:flex;gap:6px}
+.ph-btn{background:rgba(255,255,255,0.1);border:none;border-radius:20px;padding:5px 11px;
+  color:rgba(255,255,255,0.7);font-size:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.scope-row{display:flex;gap:5px;margin-bottom:10px}
+.scope-pill{padding:4px 11px;border-radius:20px;font-size:10px;font-weight:600;
+  cursor:pointer;border:1.5px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.42);
+  background:transparent;font-family:'DM Sans',sans-serif}
+.scope-pill.active{background:white;color:var(--navy);border-color:white}
+.main-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.08);overflow-x:auto;scrollbar-width:none}
+.main-tabs::-webkit-scrollbar{display:none}
+.mt{flex-shrink:0;padding:9px 13px;font-size:11px;font-weight:500;
+  color:rgba(255,255,255,0.38);cursor:pointer;border:none;background:transparent;
+  font-family:'DM Sans',sans-serif;white-space:nowrap;
+  border-bottom:2px solid transparent;margin-bottom:-1px}
+.mt.active{color:white;font-weight:700;border-bottom-color:white}
+
+/* ── CONTENT ── */
+.polis-body{height:492px;overflow-y:auto;background:var(--warm)}
+.polis-body::-webkit-scrollbar{display:none}
+.view{display:none}
+.view.active{display:block}
+
+/* ── SHARED ── */
+.sec-label{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:700;padding:10px 16px 5px;
+  display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* SCOPE TAGS (from v6.2 — per item) */
+.scope-tag{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:0.04em}
+.st-district{background:var(--sky);color:var(--accent)}
+.st-state{background:#F3E8FF;color:var(--purple)}
+.st-national{background:#FEF3C7;color:#92400E}
+.st-local{background:var(--green-light);color:var(--green)}
+.st-win{background:#F0FDF4;color:#166534}
+.st-story{background:#FFF7ED;color:var(--orange)}
+.st-table{background:linear-gradient(135deg,#DBEAFE,#F3E8FF);color:var(--navy)}
+
+/* ══════════════════════
+   HOME TAB
+══════════════════════ */
+.district-now{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:12px;margin:10px 14px 4px;padding:12px 14px}
+.dn-title{color:white;font-size:12px;font-weight:700;margin-bottom:2px}
+.dn-sub{color:rgba(255,255,255,0.6);font-size:10px;margin-bottom:10px;line-height:1.4}
+.dn-stats{display:flex;gap:6px}
+.dn-stat{flex:1;background:rgba(255,255,255,0.1);border-radius:8px;padding:7px 4px;text-align:center}
+.dn-val{color:white;font-size:14px;font-weight:700;display:block;line-height:1}
+.dn-label{color:rgba(255,255,255,0.45);font-size:8px;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+
+/* BILL COUNTDOWN */
+.bill-countdown{background:linear-gradient(135deg,#1A1040,#2D1B69);border-radius:12px;margin:0 14px 9px;padding:12px 14px;cursor:pointer}
+.bc-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.bc-live{width:6px;height:6px;border-radius:50%;background:#EF4444;flex-shrink:0;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.2)}}
+.bc-title{color:white;font-size:13px;font-weight:700;line-height:1.3;margin-bottom:8px}
+.bc-clock{display:flex;gap:5px;margin-bottom:9px}
+.bc-unit{flex:1;background:rgba(255,255,255,0.12);border-radius:7px;padding:6px 3px;text-align:center}
+.bc-val{color:white;font-size:17px;font-weight:700;display:block;line-height:1}
+.bc-label{color:rgba(255,255,255,0.42);font-size:8px;text-transform:uppercase;letter-spacing:0.06em}
+.bc-footer{display:flex;justify-content:space-between;align-items:center}
+.bc-voices{color:rgba(255,255,255,0.55);font-size:10px}
+.bc-cta{font-size:10px;font-weight:700;color:white;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:20px}
+
+/* HOME FEED ITEM */
+.hfi{background:white;border-radius:12px;padding:10px 13px;margin:0 14px 8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer}
+.hfi-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.hfi-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.35}
+.hfi-sub{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:6px}
+.hfi-foot{display:flex;align-items:center;justify-content:space-between}
+.hfi-meta{font-size:10px;color:var(--muted)}
+.hfi-link{font-size:10px;font-weight:600;color:var(--accent)}
+
+/* LOCAL WIN CARD */
+.win-card{background:linear-gradient(135deg,#052e16,var(--green));border-radius:12px;margin:0 14px 9px;padding:12px 14px}
+.wc-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.5);font-weight:700;margin-bottom:4px}
+.wc-title{color:white;font-size:13px;font-weight:700;line-height:1.35;margin-bottom:5px}
+.wc-body{color:rgba(255,255,255,0.75);font-size:11px;line-height:1.55;margin-bottom:9px}
+.wc-footer{display:flex;align-items:center;gap:8px}
+.wc-credit{font-size:10px;color:rgba(255,255,255,0.55)}
+.wc-share{background:rgba(255,255,255,0.15);border:none;border-radius:20px;padding:4px 11px;color:rgba(255,255,255,0.8);font-size:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* WEEKLY DIGEST */
+.weekly-digest{background:white;border-radius:12px;margin:0 14px 9px;padding:11px 13px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.wd-title{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:9px}
+.wd-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px}
+.wd-row:last-child{margin-bottom:0}
+.wd-icon{font-size:15px;flex-shrink:0}
+.wd-text{font-size:11px;color:var(--ink);line-height:1.5}
+
+/* ══════════════════════
+   DISCUSS TAB
+══════════════════════ */
+.discuss-filters{display:flex;gap:5px;padding:9px 14px 6px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.discuss-filters::-webkit-scrollbar{display:none}
+.df{flex-shrink:0;padding:5px 11px;border-radius:20px;font-size:10px;font-weight:600;
+  border:1.5px solid var(--border);background:white;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif}
+.df.active{background:var(--navy);color:white;border-color:var(--navy)}
+.discuss-rules{font-size:10px;color:var(--muted);padding:5px 16px 8px;line-height:1.4}
+
+/* THREAD CARD */
+.thread{background:white;border-radius:12px;margin:0 14px 8px;padding:11px 13px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.05);cursor:pointer;border-left:3px solid transparent}
+.thread-bill{border-left-color:var(--purple)}
+.thread-local{border-left-color:var(--green)}
+.thread-nat{border-left-color:var(--gold)}
+.thread-win{border-left-color:#166534}
+.thread-story{border-left-color:var(--orange)}
+.thread-table{border-left-color:var(--teal)}
+.thread-top{display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap}
+.thread-title{font-size:12px;font-weight:700;color:var(--ink);line-height:1.4;margin-bottom:4px}
+.thread-preview{font-size:11px;color:var(--muted);line-height:1.45;margin-bottom:7px}
+.thread-foot{display:flex;align-items:center;justify-content:space-between}
+.thread-replies{font-size:10px;color:var(--muted)}
+.thread-verified{font-size:9px;color:var(--green);font-weight:600;background:var(--green-light);padding:2px 7px;border-radius:20px}
+.thread-new{font-size:9px;color:var(--orange);font-weight:600;background:#FFF7ED;padding:2px 7px;border-radius:20px}
+
+/* THREAD OVERLAY */
+.overlay{display:none;position:absolute;top:42px;left:0;right:0;bottom:0;
+  background:var(--warm);z-index:20;overflow-y:auto}
+.overlay.open{display:block}
+.overlay::-webkit-scrollbar{display:none}
+.back-btn{background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;padding:12px 16px 0}
+.thread-hero{padding:12px 16px 14px}
+.th-stats{display:flex;gap:6px;margin-top:9px}
+.th-stat{flex:1;background:rgba(255,255,255,0.1);border-radius:7px;padding:6px 4px;text-align:center}
+.th-stat-val{color:white;font-size:13px;font-weight:700;display:block;line-height:1}
+.th-stat-label{color:rgba(255,255,255,0.45);font-size:8px;text-transform:uppercase;letter-spacing:0.06em;margin-top:1px}
+
+.comment{background:white;border-radius:11px;padding:10px 13px;margin:8px 14px 0;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.c-head{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.c-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.c-name{font-size:11px;font-weight:600;color:var(--ink)}
+.c-badge{font-size:9px;padding:1px 6px;border-radius:20px;font-weight:600}
+.cb-v{background:var(--green-light);color:var(--green)}
+.cb-e{background:#EFF6FF;color:#1D4ED8}
+.cb-o{background:#F3E8FF;color:var(--purple)}
+.c-time{font-size:10px;color:var(--muted);margin-left:auto}
+.c-body{font-size:11px;color:var(--ink);line-height:1.65;margin-bottom:5px}
+.c-party-note{font-size:10px;color:var(--muted);font-style:italic;background:#F9FAFB;border-radius:6px;padding:4px 8px;margin-bottom:5px;line-height:1.4}
+.c-reply{font-size:10px;color:var(--accent);font-weight:600;cursor:pointer}
+
+.comment-bar{background:white;border-top:1px solid var(--border);padding:8px 14px;display:flex;gap:8px;align-items:center;position:sticky;bottom:0}
+.cb-input{flex:1;background:#F3F4F6;border:none;border-radius:20px;padding:8px 13px;font-size:11px;font-family:'DM Sans',sans-serif;outline:none;color:var(--ink)}
+.cb-input::placeholder{color:var(--muted)}
+.cb-post{background:var(--accent);color:white;border:none;border-radius:20px;padding:7px 13px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* DISAGREE WITH PARTY BANNER */
+.party-space-banner{background:#F9FAFB;border-radius:10px;border:1.5px dashed var(--border);padding:10px 12px;margin:8px 14px;font-size:11px;color:var(--muted);line-height:1.55;text-align:center}
+
+/* ══════════════════════
+   POLLS TAB
+══════════════════════ */
+.poll-card{background:white;border-radius:12px;padding:12px 14px;margin:0 14px 9px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.pc-scope-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.pc-q{font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:10px}
+.pc-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;
+  border:1.5px solid var(--border);background:#F9FAFB;margin-bottom:5px;cursor:pointer}
+.pc-opt:last-of-type{margin-bottom:0}
+.pc-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--accent);flex-shrink:0;background:transparent}
+.pc-opt-text{font-size:11px;color:var(--ink);font-weight:500;line-height:1.35}
+.pc-opt.voted{background:var(--sky);border-color:var(--accent)}
+.pc-opt.voted .pc-radio{background:var(--accent)}
+
+/* RESULTS */
+.pc-result-row{margin-bottom:5px}
+.pc-result-top{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;margin-bottom:3px}
+.pc-result-bar{height:5px;background:#F3F4F6;border-radius:3px;overflow:hidden}
+.pc-result-fill{height:100%;border-radius:3px}
+
+/* CONTEXT ROWS (from v6.2) */
+.poll-context{background:#F9FAFB;border-radius:9px;padding:9px 11px;margin-top:8px}
+.poll-ctx-row{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px}
+.poll-ctx-row:last-child{margin-bottom:0}
+.poll-ctx-label{color:var(--muted);font-weight:500}
+.poll-ctx-val{font-weight:700;color:var(--ink)}
+
+/* EDU LINK */
+.poll-edu{display:flex;align-items:center;gap:6px;background:var(--sky);border-radius:9px;padding:8px 11px;margin-top:8px;cursor:pointer}
+.poll-edu-text{font-size:11px;color:var(--accent);font-weight:600;flex:1}
+
+/* STATE PRECEDENT (from v6.2) */
+.state-precedent{background:#FEF3C7;border-radius:9px;padding:9px 12px;margin-top:8px;display:flex;gap:7px;align-items:flex-start}
+.sp-icon{font-size:15px;flex-shrink:0}
+.sp-eyebrow{font-size:9px;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px}
+.sp-body{font-size:11px;color:#78350F;line-height:1.5}
+
+/* CONSTITUENT POLL */
+.const-poll{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:12px;padding:12px 14px;margin:0 14px 9px}
+.cp-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.4);font-weight:700;margin-bottom:4px}
+.cp-q{color:white;font-size:13px;font-weight:700;line-height:1.35;margin-bottom:9px}
+.cp-bar-row{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.cp-label{font-size:10px;color:rgba(255,255,255,0.7);min-width:110px}
+.cp-track{flex:1;height:6px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden}
+.cp-fill{height:100%;border-radius:3px}
+.cp-pct{font-size:11px;font-weight:700;color:white;min-width:28px;text-align:right}
+.cp-send{width:100%;background:white;color:var(--navy);border:none;border-radius:9px;padding:9px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:9px}
+
+/* RCV */
+.rcv-card{background:white;border-radius:12px;padding:12px 14px;margin:0 14px 9px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.rcv-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple);font-weight:700;margin-bottom:4px}
+.rcv-q{font-size:13px;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:4px}
+.rcv-sub{font-size:10px;color:var(--muted);margin-bottom:11px;line-height:1.45}
+.rcv-item{display:flex;align-items:center;gap:9px;padding:8px 10px;background:#F9FAFB;border-radius:9px;margin-bottom:5px;border:1.5px solid var(--border);cursor:grab}
+.rcv-rank{width:22px;height:22px;border-radius:50%;background:var(--purple);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rcv-name{font-size:12px;font-weight:600;color:var(--ink);flex:1}
+.rcv-party{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700}
+.rcv-handle{font-size:14px;color:var(--muted)}
+.rcv-submit{width:100%;background:var(--purple);color:white;border:none;border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:3px}
+.pc-footer{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:8px}
+
+/* ══════════════════════
+   EVENTS TAB
+══════════════════════ */
+.create-event{margin:10px 14px 4px;background:var(--navy);border:none;border-radius:12px;padding:11px 14px;width:calc(100% - 28px);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:10px;text-align:left}
+.ce-icon{font-size:20px}
+.ce-title{color:white;font-size:12px;font-weight:700;display:block}
+.ce-sub{color:rgba(255,255,255,0.5);font-size:10px;display:block;margin-top:1px;line-height:1.35}
+.ce-arrow{color:rgba(255,255,255,0.4);font-size:16px;margin-left:auto}
+
+.event-card{background:white;border-radius:12px;padding:12px 13px;margin:0 14px 8px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.ec-top{display:flex;gap:11px;align-items:flex-start;margin-bottom:8px}
+.ec-date{text-align:center;flex-shrink:0;width:40px}
+.ec-month{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--accent);letter-spacing:0.08em;line-height:1}
+.ec-day{font-size:24px;font-weight:700;color:var(--ink);line-height:1.1}
+.ec-main{flex:1}
+.ec-title{font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:4px}
+.ec-type{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;display:inline-block;margin-bottom:4px}
+.et-civic{background:#EFF6FF;color:#1D4ED8}
+.et-community{background:#FEF3C7;color:#92400E}
+.et-challenge{background:var(--green-light);color:var(--green)}
+.et-candidate{background:#F3E8FF;color:var(--purple)}
+.et-table{background:linear-gradient(135deg,#DBEAFE,#F3E8FF);color:var(--navy)}
+.et-philanthropy{background:#FFF7ED;color:var(--orange)}
+.ec-detail{font-size:10px;color:var(--muted);line-height:1.45;margin-bottom:7px}
+.ec-host{font-size:10px;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.ec-host-av{width:18px;height:18px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-size:9px}
+.ec-spots{font-size:10px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.spots-bar{flex:1;height:4px;background:#F3F4F6;border-radius:2px;overflow:hidden}
+.spots-fill{height:100%;border-radius:2px}
+.ec-btns{display:flex;gap:6px}
+.ec-rsvp{flex:1;background:var(--accent);color:white;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center}
+.ec-sec{background:#F3F4F6;color:var(--ink);border:none;border-radius:8px;padding:8px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* TALK ACROSS THE TABLE SPECIAL CARD */
+.table-card{background:linear-gradient(135deg,#0F3460,var(--teal));border-radius:12px;padding:13px 14px;margin:0 14px 9px}
+.tc-eyebrow{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.5);font-weight:700;margin-bottom:5px}
+.tc-title{color:white;font-family:'DM Serif Display',serif;font-size:16px;line-height:1.3;margin-bottom:6px}
+.tc-rules{background:rgba(255,255,255,0.1);border-radius:9px;padding:9px 11px;margin-bottom:10px}
+.tc-rule{font-size:10px;color:rgba(255,255,255,0.8);line-height:1.6;display:flex;gap:7px;margin-bottom:3px}
+.tc-rule:last-child{margin-bottom:0}
+.tc-rule::before{content:'→';flex-shrink:0;color:rgba(255,255,255,0.5)}
+.tc-footer{display:flex;align-items:center;justify-content:space-between}
+.tc-spots{font-size:10px;color:rgba(255,255,255,0.55)}
+.tc-join{background:white;color:var(--navy);border:none;border-radius:9px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* ══════════════════════
+   COMMUNITY TAB
+══════════════════════ */
+.comm-tabs{display:flex;background:#F3F4F6;border-radius:9px;padding:3px;gap:3px;margin:10px 14px 8px}
+.ct{flex:1;text-align:center;padding:6px 4px;border-radius:7px;font-size:10px;
+  font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;
+  font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.ct.active{background:white;color:var(--navy);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.comm-view{display:none}
+.comm-view.active{display:block}
+
+/* CHALLENGES */
+.challenge{background:white;border-radius:12px;overflow:hidden;margin:0 14px 8px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.ch-body{padding:10px 13px}
+.ch-top{display:flex;gap:9px;align-items:flex-start;margin-bottom:7px}
+.ch-icon{font-size:22px;flex-shrink:0}
+.ch-info{flex:1}
+.ch-title{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.ch-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.ch-reward{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;flex-shrink:0;align-self:flex-start;margin-top:2px}
+.cr-p{background:var(--sky);color:var(--accent)}
+.cr-c{background:var(--green-light);color:var(--green)}
+.ch-prog-label{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px}
+.ch-prog-label span:first-child{color:var(--muted)}
+.ch-prog-label span:last-child{font-weight:700;color:var(--accent)}
+.ch-prog-track{height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;margin-bottom:7px}
+.ch-prog-fill{height:100%;border-radius:3px;background:var(--accent)}
+.ch-join{width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.ch-joined{width:100%;background:var(--green-light);color:var(--green);border:1.5px solid var(--green);border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* CIVIC GROUPS */
+.group-card{background:white;border-radius:12px;padding:11px 13px;margin:0 14px 8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.gc-av{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.gc-info{flex:1}
+.gc-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.gc-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:5px}
+.gc-tags{display:flex;gap:4px;flex-wrap:wrap}
+.gc-tag{font-size:9px;padding:2px 6px;border-radius:20px;background:#F3F4F6;color:var(--muted);font-weight:600}
+.gc-right{text-align:right;flex-shrink:0}
+.gc-members{font-size:12px;font-weight:700;color:var(--accent)}
+.gc-label{font-size:9px;color:var(--muted)}
+.gc-v{font-size:9px;color:var(--green);font-weight:600;margin-top:2px}
+
+/* ORGANIZATIONS (PHILANTHROPY) */
+.org-card{background:white;border-radius:12px;padding:12px 14px;margin:0 14px 8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border-left:3px solid var(--orange)}
+.oc-top{display:flex;gap:10px;align-items:flex-start;margin-bottom:7px}
+.oc-logo{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:#FFF7ED}
+.oc-info{flex:1}
+.oc-name{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.oc-type{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;background:#FFF7ED;color:var(--orange);display:inline-block;margin-bottom:3px}
+.oc-desc{font-size:10px;color:var(--muted);line-height:1.45;margin-bottom:8px}
+.oc-needs{background:#FFF7ED;border-radius:8px;padding:7px 10px;margin-bottom:7px}
+.oc-needs-title{font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--orange);font-weight:700;margin-bottom:4px}
+.oc-need-row{font-size:11px;color:var(--ink);display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.oc-need-row:last-child{margin-bottom:0}
+.oc-btns{display:flex;gap:6px}
+.oc-vol{flex:1;background:var(--orange);color:white;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center}
+.oc-give{background:#FFF7ED;color:var(--orange);border:1.5px solid var(--orange);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.oc-civvy-member{font-size:10px;color:var(--green);font-weight:600;margin-top:5px;display:flex;align-items:center;gap:4px}
+.suggest-org{margin:0 14px 9px;border:2px dashed var(--border);border-radius:12px;padding:11px 13px;cursor:pointer;display:flex;align-items:center;gap:10px;background:transparent;width:calc(100% - 28px);font-family:'DM Sans',sans-serif}
+
+/* PETITIONS */
+.petition{background:white;border-radius:12px;padding:11px 13px;margin:0 14px 8px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.pet-target-row{font-size:10px;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:4px}
+.pet-progress{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pet-bar{flex:1;height:7px;background:#F3F4F6;border-radius:3px;overflow:hidden}
+.pet-fill{height:100%;border-radius:3px;background:var(--accent)}
+.pet-count{font-size:11px;font-weight:700;color:var(--accent);white-space:nowrap}
+.pet-sign{width:100%;background:var(--accent);color:white;border:none;border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.pet-signed{width:100%;background:var(--green-light);color:var(--green);border:1.5px solid var(--green);border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* IDEAS PORTAL */
+.ideas-tabs{display:flex;background:#F3F4F6;border-radius:9px;padding:3px;gap:3px;margin:0 14px 8px}
+.it{flex:1;text-align:center;padding:6px 3px;border-radius:7px;font-size:10px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.it.active{background:white;color:var(--navy);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.07)}
+.idea{background:white;border-radius:11px;padding:11px 13px;margin:0 14px 8px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.idea-title{font-size:12px;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:3px}
+.idea-body{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:7px}
+.idea-foot{display:flex;align-items:center;gap:7px}
+.idea-votes{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer}
+.idea-by{font-size:10px;color:var(--muted);flex:1}
+.idea-status{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700}
+.is-new{background:#F0FDF4;color:#166534}
+.is-rev{background:#EFF6FF;color:#1D4ED8}
+.is-plan{background:#F3E8FF;color:var(--purple)}
+.is-ship{background:var(--green-light);color:var(--green)}
+.submit-idea{margin:0 14px 14px;background:var(--accent);color:white;border:none;border-radius:10px;padding:11px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;width:calc(100% - 28px);display:flex;align-items:center;justify-content:center;gap:6px}
+
+/* BOTTOM NAV */
+.bottom-nav{background:white;border-top:1px solid var(--border);display:flex;padding:5px 0 12px}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:5px 0;border:none;background:none;font-family:'DM Sans',sans-serif}
+.nav-icon{font-size:15px;opacity:.3}
+.nav-label{font-size:7.5px;color:var(--muted);font-weight:500}
+.nav-item.active .nav-icon{opacity:1}
+.nav-item.active .nav-label{color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- INFO PANEL -->
+<div class="info">
+  <div class="wordmark">Civvy</div>
+  <div class="subtitle">Polis v2 — The Civic Commons</div>
+  <div class="feat-block">
+    <div class="feat-title">What's new vs v1</div>
+    <div class="feat">Scope tags per item (District · State · National) — not just a global filter</div>
+    <div class="feat">District / State / National context rows inside every poll</div>
+    <div class="feat">State precedent cards — "Colorado already tried this"</div>
+    <div class="feat">Education link on every poll → Learn tab</div>
+    <div class="feat">Talk Across the Table — structured cross-party event format</div>
+    <div class="feat">Local Win thread type — good news in the neighborhood</div>
+    <div class="feat">Neighbor's Story thread — how legislation affected a real person</div>
+    <div class="feat">Space to disagree with your own party — built into discussion culture</div>
+    <div class="feat">Organizations tab = philanthropy directory, not civic groups</div>
+    <div class="feat">Local issue examples grounded in IL-14 / Aurora / Naperville</div>
+  </div>
+  <div class="note-box">
+    <div class="note-title">Design principles</div>
+    <div class="note-row">Local first — district is default scope, zoom out to state/national</div>
+    <div class="note-row">No upvotes in Discuss — chronological only, prevents outrage spiral</div>
+    <div class="note-row">Verified district members only — real neighbors, real weight</div>
+    <div class="note-row">Party label secondary — your rep and your party are different things</div>
+    <div class="note-row">Organizations = purely good things. No advocacy, no politics.</div>
+    <div class="note-row">Talk Across the Table: goal is compromise, not conversion</div>
+  </div>
+</div>
+
+<!-- PHONE -->
+<div class="phone-wrap">
+  <div class="phone-label">Five tabs · All interactive · Thread overlay · RCV draggable · All polls vote-and-reveal</div>
+  <div class="phone">
+    <div class="status-bar"><span class="time">9:41</span><span class="icons">●●● 🔋</span></div>
+
+    <!-- HEADER -->
+    <div class="polis-header">
+      <div class="ph-top">
+        <h2>Polis</h2>
+        <div class="ph-actions">
+          <button class="ph-btn">📍 IL-14</button>
+          <button class="ph-btn">+ Start</button>
+        </div>
+      </div>
+      <div class="scope-row">
+        <button class="scope-pill active" onclick="setScope(this)">My District</button>
+        <button class="scope-pill" onclick="setScope(this)">Illinois</button>
+        <button class="scope-pill" onclick="setScope(this)">National</button>
+      </div>
+      <div class="main-tabs">
+        <button class="mt active" onclick="switchMain('home',this)">Home</button>
+        <button class="mt" onclick="switchMain('discuss',this)">Discuss</button>
+        <button class="mt" onclick="switchMain('polls',this)">Polls</button>
+        <button class="mt" onclick="switchMain('events',this)">Events</button>
+        <button class="mt" onclick="switchMain('community',this)">Community</button>
+      </div>
+    </div>
+
+    <div class="polis-body">
+
+      <!-- ══════════ HOME ══════════ -->
+      <div class="view active" id="view-home">
+
+        <div class="district-now">
+          <div class="dn-title">Right now in IL-14</div>
+          <div class="dn-sub">Your district · your neighbors · what's actually happening today</div>
+          <div class="dn-stats">
+            <div class="dn-stat"><span class="dn-val">412</span><span class="dn-label">Active today</span></div>
+            <div class="dn-stat"><span class="dn-val">2,847</span><span class="dn-label">Members</span></div>
+            <div class="dn-stat"><span class="dn-val">847/1k</span><span class="dn-label">Challenge</span></div>
+            <div class="dn-stat"><span class="dn-val">3</span><span class="dn-label">Live threads</span></div>
+          </div>
+        </div>
+
+        <!-- LIVE BILL COUNTDOWN -->
+        <div class="bill-countdown" onclick="openOverlay('bill-overlay')">
+          <div class="bc-eyebrow"><div class="bc-live"></div>Live bill thread · 412 discussing</div>
+          <div class="bc-title">Medicare Drug Price Negotiation Act — vote in:</div>
+          <div class="bc-clock">
+            <div class="bc-unit"><span class="bc-val">14</span><span class="bc-label">Days</span></div>
+            <div class="bc-unit"><span class="bc-val">06</span><span class="bc-label">Hrs</span></div>
+            <div class="bc-unit"><span class="bc-val">32</span><span class="bc-label">Min</span></div>
+            <div class="bc-unit"><span class="bc-val">14</span><span class="bc-label">Sec</span></div>
+          </div>
+          <div class="bc-footer">
+            <span class="bc-voices">79% of IL-14 says vote YES · 18 senators undecided</span>
+            <span class="bc-cta">Join →</span>
+          </div>
+        </div>
+
+        <!-- LOCAL WIN -->
+        <div class="win-card">
+          <div class="wc-eyebrow">🏆 Local win · Aurora · This week</div>
+          <div class="wc-title">Aurora City Council approved $2.1M for lead pipe replacement in District 6</div>
+          <div class="wc-body">After 14 months of resident petitions and three town hall appearances by neighbors, the council voted 7-2 to fund full lead pipe replacement in the oldest parts of the district. Work begins June 2026.</div>
+          <div class="wc-footer">
+            <span class="wc-credit">Started by 47 Aurora residents on Civvy · Mar 15</span>
+            <button class="wc-share">Share</button>
+          </div>
+        </div>
+
+        <div class="sec-label">Trending in your district</div>
+
+        <div class="hfi" onclick="openOverlay('bill-overlay')">
+          <div class="hfi-top"><span class="scope-tag st-district">📍 District</span><span style="font-size:10px;color:var(--muted)">💬 78 replies</span></div>
+          <div class="hfi-title">"Is the 10-drug cap a real win or a compromise too far?" — pharmacist started this</div>
+          <div class="hfi-sub">Maria T., Naperville pharmacist · 3 hours ago · 78 verified IL-14 voices</div>
+          <div class="hfi-foot"><span class="hfi-meta">78 replies · most recent 4 min ago</span><span class="hfi-link">Read →</span></div>
+        </div>
+
+        <div class="hfi">
+          <div class="hfi-top"><span class="scope-tag st-local">📍 Local</span><span style="font-size:10px;color:var(--muted)">📅 This Saturday</span></div>
+          <div class="hfi-title">Talk Across the Table — District 6 edition · Aurora Library</div>
+          <div class="hfi-sub">Sat Mar 22 · 10am · D and R residents paired for structured compromise conversation · 8 of 12 spots filled</div>
+          <div class="hfi-foot"><span class="hfi-meta">8 going · 4 spots left</span><span class="hfi-link">RSVP →</span></div>
+        </div>
+
+        <div class="hfi">
+          <div class="hfi-top"><span class="scope-tag st-story">🌱 Neighbor's Story</span></div>
+          <div class="hfi-title">"My mother pays $340/month for Xarelto. This vote is her grocery budget."</div>
+          <div class="hfi-sub">Robert K., Aurora · Retired · Submitted to Polis 2 days ago · 143 neighbors responded</div>
+          <div class="hfi-foot"><span class="hfi-meta">143 responses</span><span class="hfi-link">Read →</span></div>
+        </div>
+
+        <div class="hfi">
+          <div class="hfi-top"><span class="scope-tag st-local">📍 Local</span><span style="font-size:10px;color:var(--orange)">🏡 Philanthropy</span></div>
+          <div class="hfi-title">Cleaning for a Reason — Samantha's business donating free cleanings to cancer families</div>
+          <div class="hfi-sub">Lime Maids, Vermont-based · 3 families served this month · Needs volunteers and referrals</div>
+          <div class="hfi-foot"><span class="hfi-meta">Volunteer or refer a family →</span><span class="hfi-link">Learn more →</span></div>
+        </div>
+
+        <div class="sec-label">What your community said this week</div>
+        <div class="weekly-digest">
+          <div class="wd-title">IL-14 weekly digest · March 10–16</div>
+          <div class="wd-row"><span class="wd-icon">📊</span><span class="wd-text"><strong>847 neighbors</strong> took at least one civic action this week — a district record</span></div>
+          <div class="wd-row"><span class="wd-icon">🏆</span><span class="wd-text">Aurora lead pipe funding passed after <strong>14 months of resident organizing</strong> — Civvy petition had 847 verified signatures</span></div>
+          <div class="wd-row"><span class="wd-icon">💬</span><span class="wd-text">Most discussed: drug pricing vote · <strong>412 voices</strong> in 6 active threads</span></div>
+          <div class="wd-row"><span class="wd-icon">🤝</span><span class="wd-text"><strong>First Talk Across the Table</strong> hosted in IL-14 — 12 participants, 4 issues, 2 areas of genuine compromise found</span></div>
+          <div class="wd-row"><span class="wd-icon">🌱</span><span class="wd-text"><strong>Cleaning for a Reason</strong> served 3 cancer families through Civvy referrals this week</span></div>
+        </div>
+        <div style="height:14px"></div>
+      </div>
+
+      <!-- ══════════ DISCUSS ══════════ -->
+      <div class="view" id="view-discuss">
+        <div class="discuss-filters">
+          <button class="df active">All</button>
+          <button class="df">📜 Bills</button>
+          <button class="df">📍 Local</button>
+          <button class="df">🏆 Wins</button>
+          <button class="df">🌱 Stories</button>
+          <button class="df">🤝 Across Table</button>
+          <button class="df">💡 Ideas</button>
+        </div>
+        <div class="discuss-rules">Chronological · No upvotes · Verified IL-14 only · Your party and your rep are different things — both are welcome here</div>
+
+        <!-- LOCAL WIN THREAD -->
+        <div class="thread thread-win">
+          <div class="thread-top"><span class="scope-tag st-win">🏆 Local Win</span><span class="scope-tag st-local" style="margin-left:2px">Aurora</span></div>
+          <div class="thread-title">Aurora lead pipe replacement APPROVED — 14 months of work paid off. Sharing the story for anyone who thinks local action doesn't work.</div>
+          <div class="thread-preview">"I went to three city council meetings before anyone on the council even acknowledged we were there. This is what persistence in local government looks like…"</div>
+          <div class="thread-foot">
+            <span class="thread-replies">143 replies · 1 day ago</span>
+            <span class="thread-verified">✓ 143 verified IL-14</span>
+          </div>
+        </div>
+
+        <!-- BILL THREAD -->
+        <div class="thread thread-bill" onclick="openOverlay('bill-overlay')">
+          <div class="thread-top"><span class="scope-tag st-national">🌐 National</span><span class="scope-tag st-district" style="margin-left:2px">Durbin votes Apr 2</span></div>
+          <div class="thread-title">Medicare Drug Price Negotiation Act — is the 10-drug cap enough?</div>
+          <div class="thread-preview">"I'm a pharmacist in Naperville. Eliquis is on the negotiation list. My patients will save real money. But 10 drugs out of hundreds still feels like…"</div>
+          <div class="thread-foot">
+            <span class="thread-replies">78 replies · 3h ago</span>
+            <span class="thread-verified">✓ 78 verified IL-14</span>
+          </div>
+        </div>
+
+        <!-- NEIGHBOR'S STORY -->
+        <div class="thread thread-story">
+          <div class="thread-top"><span class="scope-tag st-story">🌱 Neighbor's Story</span><span class="thread-new" style="margin-left:2px">New</span></div>
+          <div class="thread-title">"My mother pays $340/month for Xarelto. This vote is her grocery budget."</div>
+          <div class="thread-preview">"Robert K., Aurora. I submitted this because I want senators to understand this isn't an abstract policy debate for my family. My mom is 74 and…"</div>
+          <div class="thread-foot">
+            <span class="thread-replies">143 replies · 2 days ago</span>
+            <span class="thread-verified">✓ 143 verified IL-14</span>
+          </div>
+        </div>
+
+        <!-- TALK ACROSS THE TABLE -->
+        <div class="thread thread-table">
+          <div class="thread-top"><span class="scope-tag st-table">🤝 Talk Across the Table</span></div>
+          <div class="thread-title">First IL-14 session recap — what we actually agreed on (and what we didn't)</div>
+          <div class="thread-preview">"12 residents, 6 D and 6 R, 2 hours. Ground rule: we're not trying to convert each other. We're trying to find the smallest genuine compromise. Here's what happened…"</div>
+          <div class="thread-foot">
+            <span class="thread-replies">54 replies · 3 days ago</span>
+            <span class="thread-verified">✓ 54 verified IL-14</span>
+          </div>
+        </div>
+
+        <!-- LOCAL ISSUE THREAD -->
+        <div class="thread thread-local">
+          <div class="thread-top"><span class="scope-tag st-local">📍 Local · Aurora</span></div>
+          <div class="thread-title">Aurora School Board is voting on civics curriculum April 15 — does anyone know what's actually in it?</div>
+          <div class="thread-preview">"I got a flyer but couldn't make the meeting. Is this the good kind of civics — real local government research — or the sanitized version? Before the board vote…"</div>
+          <div class="thread-foot">
+            <span class="thread-replies">34 replies · Yesterday</span>
+            <span class="thread-verified">✓ 34 verified IL-14</span>
+          </div>
+        </div>
+
+        <!-- DISAGREE WITH PARTY SPACE -->
+        <div class="party-space-banner">
+          🏛 Your party and your representative are different things.<br>
+          <span style="font-weight:600;color:var(--ink)">It's okay to agree with the other side — or disagree with your own.</span><br>
+          <span style="font-size:10px">Polis is a space for honest civic thinking, not party loyalty.</span>
+        </div>
+
+        <!-- STATE THREAD -->
+        <div class="thread thread-local">
+          <div class="thread-top"><span class="scope-tag st-state">🏛 State · Illinois</span></div>
+          <div class="thread-title">IL $3.2B pension shortfall — the four-layer breakdown raised more questions than it answered for me</div>
+          <div class="thread-preview">"I'm a Democrat and I think the union angle here is more complicated than my party's talking points let on. Colorado did this in 2018 and their retirees took real cuts…"</div>
+          <div class="thread-foot">
+            <span class="thread-replies">29 replies · 2 days ago</span>
+            <span class="thread-verified">✓ 29 IL verified</span>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:10px 0;font-size:11px;color:var(--accent);font-weight:600;cursor:pointer">Load more →</div>
+        <div style="height:12px"></div>
+      </div>
+
+      <!-- ══════════ POLLS ══════════ -->
+      <div class="view" id="view-polls">
+        <div style="height:8px"></div>
+
+        <!-- CONSTITUENT PETITION POLL -->
+        <div class="const-poll">
+          <div class="cp-eyebrow">Verified constituent poll — ready to send</div>
+          <div class="cp-q">Should Durbin vote YES on Medicare drug price negotiation?</div>
+          <div class="cp-bar-row"><span class="cp-label">Yes — vote for it</span><div class="cp-track"><div class="cp-fill" style="width:79%;background:white"></div></div><span class="cp-pct">79%</span></div>
+          <div class="cp-bar-row"><span class="cp-label">No</span><div class="cp-track"><div class="cp-fill" style="width:21%;background:rgba(255,255,255,0.35)"></div></div><span class="cp-pct">21%</span></div>
+          <div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:8px 11px;margin:9px 0;font-size:10px;color:rgba(255,255,255,0.7);line-height:1.55">1,847 verified IL-14 residents responded. This poll can be sent directly to Durbin's office with verified names and district confirmation.</div>
+          <button class="cp-send" onclick="this.textContent='✓ Sent to Durbin\'s office — 1,847 verified signatures attached'">Send poll results to Durbin's office →</button>
+        </div>
+
+        <!-- RCV POLL -->
+        <div class="sec-label">Ranked choice polls</div>
+        <div class="rcv-card">
+          <div class="rcv-eyebrow">🗳 Ranked Choice · IL Senate Primary · Today</div>
+          <div class="rcv-q">Rank the candidates for your IL-14 U.S. Senate vote</div>
+          <div class="rcv-sub">Drag to reorder · Your ranking is personal — separate from the community poll below · Results shown after you submit</div>
+          <div id="rcv-list">
+            <div class="rcv-item" draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)"><div class="rcv-rank">1</div><div class="rcv-name">Juliana Stratton</div><span class="rcv-party" style="background:#DBEAFE;color:#1E40AF">D</span><div class="rcv-handle">⠿</div></div>
+            <div class="rcv-item" draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)"><div class="rcv-rank">2</div><div class="rcv-name">Robin Kelly</div><span class="rcv-party" style="background:#DBEAFE;color:#1E40AF">D</span><div class="rcv-handle">⠿</div></div>
+            <div class="rcv-item" draggable="true" ondragstart="ds(event)" ondragover="dv(event)" ondrop="dp(event)"><div class="rcv-rank">3</div><div class="rcv-name">Darin LaHood</div><span class="rcv-party" style="background:#FEE2E2;color:#991B1B">R</span><div class="rcv-handle">⠿</div></div>
+          </div>
+          <button class="rcv-submit" onclick="submitRCV()">Submit my ranking →</button>
+          <div id="rcv-results" style="display:none;margin-top:10px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">IL-14 community · 1,204 responses</div>
+            <div class="pc-result-row"><div class="pc-result-top"><span>Stratton ranked #1 by</span><span style="font-weight:700;color:var(--accent)">54%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:54%;background:var(--accent)"></div></div></div>
+            <div class="pc-result-row" style="margin-top:5px"><div class="pc-result-top"><span>Kelly ranked #1 by</span><span style="font-weight:700;color:var(--purple)">28%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:28%;background:var(--purple)"></div></div></div>
+            <div class="pc-result-row" style="margin-top:5px"><div class="pc-result-top"><span>LaHood ranked #1 by</span><span style="font-weight:700;color:var(--muted)">18%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:18%;background:#9CA3AF"></div></div></div>
+            <div style="font-size:10px;color:var(--accent);font-weight:600;margin-top:8px;cursor:pointer">Discuss the rankings in Polis →</div>
+          </div>
+        </div>
+
+        <!-- ISSUE POLL — with edu link + district/state/national context -->
+        <div class="sec-label">Community polls</div>
+        <div class="poll-card">
+          <div class="pc-scope-row"><span class="scope-tag st-national">🌐 National</span><span style="font-size:10px;color:var(--muted);margin-left:4px">· Drug pricing</span></div>
+          <div class="pc-q">Should Medicare be allowed to directly negotiate prescription drug prices?</div>
+          <div id="drug-opts">
+            <div class="pc-opt" onclick="votePoll(this,'drug')"><div class="pc-radio"></div><span class="pc-opt-text">Yes — allow negotiation</span></div>
+            <div class="pc-opt" onclick="votePoll(this,'drug')"><div class="pc-radio"></div><span class="pc-opt-text">No — keep current system</span></div>
+            <div class="pc-opt" onclick="votePoll(this,'drug')"><div class="pc-radio"></div><span class="pc-opt-text">Not sure</span></div>
+          </div>
+          <div id="drug-results" style="display:none">
+            <div class="pc-result-row"><div class="pc-result-top"><span>Yes — allow negotiation</span><span style="font-weight:700;color:var(--green)">79%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:79%;background:var(--green)"></div></div></div>
+            <div class="pc-result-row" style="margin-top:4px"><div class="pc-result-top"><span>No — current system</span><span style="font-weight:700;color:var(--red)">13%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:13%;background:var(--red)"></div></div></div>
+            <div class="pc-result-row" style="margin-top:4px"><div class="pc-result-top"><span>Not sure</span><span style="font-weight:700;color:var(--muted)">8%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:8%;background:#D1D5DB"></div></div></div>
+            <!-- DISTRICT/STATE/NATIONAL CONTEXT (from v6.2) -->
+            <div class="poll-context">
+              <div class="poll-ctx-row"><span class="poll-ctx-label">📍 Your district (IL-14)</span><span class="poll-ctx-val" style="color:var(--green)">79% support</span></div>
+              <div class="poll-ctx-row"><span class="poll-ctx-label">🏛 Illinois statewide</span><span class="poll-ctx-val">76% support</span></div>
+              <div class="poll-ctx-row"><span class="poll-ctx-label">🌐 Nationally</span><span class="poll-ctx-val">84% · splits across parties</span></div>
+            </div>
+          </div>
+          <!-- EDU LINK -->
+          <div class="poll-edu">
+            <span>📺</span>
+            <span class="poll-edu-text">Learn: How Drug Price Negotiation Works — and why it's currently illegal →</span>
+          </div>
+          <div class="pc-footer"><span>1,847 verified IL-14 responses</span><span style="color:var(--accent);font-weight:600;cursor:pointer">Discuss →</span></div>
+        </div>
+
+        <!-- STATE POLL — with precedent card -->
+        <div class="poll-card">
+          <div class="pc-scope-row"><span class="scope-tag st-state">🏛 State</span><span style="font-size:10px;color:var(--muted);margin-left:4px">· Illinois pension crisis</span></div>
+          <div class="pc-q">Illinois faces a $3.2B pension shortfall. What should the priority be?</div>
+          <div id="pension-opts">
+            <div class="pc-opt" onclick="votePoll(this,'pension')"><div class="pc-radio"></div><span class="pc-opt-text">Reform pension benefits for future retirees</span></div>
+            <div class="pc-opt" onclick="votePoll(this,'pension')"><div class="pc-radio"></div><span class="pc-opt-text">Raise revenue — new taxes or close loopholes</span></div>
+            <div class="pc-opt" onclick="votePoll(this,'pension')"><div class="pc-radio"></div><span class="pc-opt-text">Cut other state spending to fund it</span></div>
+          </div>
+          <div id="pension-results" style="display:none">
+            <div class="pc-result-row"><div class="pc-result-top"><span>Reform benefits</span><span style="font-weight:700;color:var(--accent)">41%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:41%;background:var(--accent)"></div></div></div>
+            <div class="pc-result-row" style="margin-top:4px"><div class="pc-result-top"><span>Raise revenue</span><span style="font-weight:700;color:var(--purple)">35%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:35%;background:var(--purple)"></div></div></div>
+            <div class="pc-result-row" style="margin-top:4px"><div class="pc-result-top"><span>Cut spending</span><span style="font-weight:700;color:var(--gold)">24%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:24%;background:var(--gold)"></div></div></div>
+            <div class="poll-context">
+              <div class="poll-ctx-row"><span class="poll-ctx-label">📍 Your district (IL-14)</span><span class="poll-ctx-val">Split — no clear majority</span></div>
+              <div class="poll-ctx-row"><span class="poll-ctx-label">🏛 Illinois statewide</span><span class="poll-ctx-val">Reform leads 38%, close race</span></div>
+            </div>
+            <!-- STATE PRECEDENT (from v6.2) -->
+            <div class="state-precedent">
+              <div class="sp-icon">🗺️</div>
+              <div>
+                <div class="sp-eyebrow">Already tried elsewhere</div>
+                <div class="sp-body">Colorado passed pension reform in 2018. Reduced unfunded liability by 30% but retiree cost-of-living adjustments were permanently cut. Many retirees lost $200–$400/month. <span style="color:var(--accent);font-weight:600;cursor:pointer">Read the full analysis →</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="poll-edu">
+            <span>📺</span>
+            <span class="poll-edu-text">Learn: How Illinois pension law works — and why it's almost impossible to change →</span>
+          </div>
+          <div class="pc-footer"><span>1,204 IL verified responses</span><span style="color:var(--accent);font-weight:600;cursor:pointer">Discuss →</span></div>
+        </div>
+
+        <!-- LOCAL POLL -->
+        <div class="poll-card">
+          <div class="pc-scope-row"><span class="scope-tag st-local">📍 Local · Aurora</span></div>
+          <div class="pc-q">Aurora School Board votes April 15 on a civics requirement for graduation. Do you support it?</div>
+          <div id="school-opts">
+            <div class="pc-opt" onclick="votePoll(this,'school')"><div class="pc-radio"></div><span class="pc-opt-text">Yes — civic education should be required</span></div>
+            <div class="pc-opt" onclick="votePoll(this,'school')"><div class="pc-radio"></div><span class="pc-opt-text">Depends on what counts as civic action</span></div>
+            <div class="pc-opt" onclick="votePoll(this,'school')"><div class="pc-radio"></div><span class="pc-opt-text">No — requirements shouldn't be imposed</span></div>
+          </div>
+          <div id="school-results" style="display:none">
+            <div class="pc-result-row"><div class="pc-result-top"><span>Yes — required</span><span style="font-weight:700;color:var(--accent)">58%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:58%;background:var(--accent)"></div></div></div>
+            <div class="pc-result-row" style="margin-top:4px"><div class="pc-result-top"><span>Depends</span><span style="font-weight:700">31%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:31%;background:#93C5FD"></div></div></div>
+            <div class="pc-result-row" style="margin-top:4px"><div class="pc-result-top"><span>No</span><span style="font-weight:700;color:var(--muted)">11%</span></div><div class="pc-result-bar"><div class="pc-result-fill" style="width:11%;background:#D1D5DB"></div></div></div>
+            <div class="state-precedent">
+              <div class="sp-icon">🗺️</div>
+              <div>
+                <div class="sp-eyebrow">Already tried elsewhere</div>
+                <div class="sp-body">Maryland has required civic action hours since 2016. Graduation rates unaffected. Student political engagement measurably higher by senior year. <span style="color:var(--accent);font-weight:600;cursor:pointer">See the data →</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="poll-edu">
+            <span>📺</span>
+            <span class="poll-edu-text">Learn: How school board decisions work — and how to show up →</span>
+          </div>
+          <div class="pc-footer"><span>892 Aurora verified responses</span><span style="color:var(--accent);font-weight:600;cursor:pointer">Discuss →</span></div>
+        </div>
+        <div style="height:12px"></div>
+      </div>
+
+      <!-- ══════════ EVENTS ══════════ -->
+      <div class="view" id="view-events">
+        <button class="create-event" style="margin-top:10px">
+          <span class="ce-icon">📅</span>
+          <div>
+            <span class="ce-title">Host a civic event in IL-14</span>
+            <span class="ce-sub">Watch party · Study group · Drive · Meetup · Anyone can create · Verified district members only</span>
+          </div>
+          <span class="ce-arrow">→</span>
+        </button>
+
+        <!-- TALK ACROSS THE TABLE — featured -->
+        <div class="table-card">
+          <div class="tc-eyebrow">🤝 Talk Across the Table · IL-14 · Sat Mar 22</div>
+          <div class="tc-title">A structured conversation across party lines — the goal is compromise, not conversion</div>
+          <div class="tc-rules">
+            <div class="tc-rule">We are not here to change each other's minds</div>
+            <div class="tc-rule">We are here to find the smallest genuine area of agreement</div>
+            <div class="tc-rule">Each participant must acknowledge one valid point from the other side</div>
+            <div class="tc-rule">No shouting, no social media, no winning — just negotiating</div>
+          </div>
+          <div class="tc-footer">
+            <span class="tc-spots">8 going · 4 spots left · Aurora Library · 10am</span>
+            <button class="tc-join" onclick="this.textContent='✓ Joined'">Join</button>
+          </div>
+        </div>
+
+        <div class="sec-label">This week</div>
+
+        <div class="event-card">
+          <div class="ec-top">
+            <div class="ec-date"><div class="ec-month">MAR</div><div class="ec-day">19</div></div>
+            <div class="ec-main">
+              <div class="ec-title">Primary Election Day — Polls Open</div>
+              <span class="ec-type et-civic">Civic</span>
+            </div>
+          </div>
+          <div class="ec-detail">6am–7pm · Your polling location: Lincoln Elementary, 412 Oak St, Elgin · Civvy Passport shows your registration</div>
+          <div class="ec-btns"><div class="ec-rsvp">Get directions</div><button class="ec-sec">🚗 Offer a ride</button></div>
+        </div>
+
+        <div class="event-card">
+          <div class="ec-top">
+            <div class="ec-date"><div class="ec-month">MAR</div><div class="ec-day">22</div></div>
+            <div class="ec-main">
+              <div class="ec-title">Cleaning for a Reason — Volunteer Day</div>
+              <span class="ec-type et-philanthropy">Philanthropy</span>
+            </div>
+          </div>
+          <div class="ec-detail">10am · Aurora · Help match cancer families with donated cleaning services from local businesses · No experience needed · Bring a friend</div>
+          <div class="ec-host"><div class="ec-host-av">🧹</div><span style="font-size:10px;color:var(--muted)">Hosted by <strong>Cleaning for a Reason — IL Chapter</strong></span></div>
+          <div class="ec-spots"><span>14 of 20 spots filled</span><div class="spots-bar"><div class="spots-fill" style="width:70%;background:var(--orange)"></div></div></div>
+          <div class="ec-btns"><div class="ec-rsvp" style="background:var(--orange)">Volunteer</div><button class="ec-sec">Share</button></div>
+        </div>
+
+        <div class="sec-label">Coming up</div>
+
+        <div class="event-card">
+          <div class="ec-top">
+            <div class="ec-date"><div class="ec-month">MAR</div><div class="ec-day">29</div></div>
+            <div class="ec-main">
+              <div class="ec-title">1,000 Contacts Challenge Sprint — Canvassing Weekend</div>
+              <span class="ec-type et-challenge">Challenge event</span>
+            </div>
+          </div>
+          <div class="ec-detail">Sat–Sun 10am–4pm · Naperville Community Center · Contact Durbin about drug pricing vote · Lunch provided · Counts toward district challenge</div>
+          <div class="ec-btns"><div class="ec-rsvp">Sign up</div><button class="ec-sec">Discuss →</button></div>
+        </div>
+
+        <div class="event-card">
+          <div class="ec-top">
+            <div class="ec-date"><div class="ec-month">APR</div><div class="ec-day">5</div></div>
+            <div class="ec-main">
+              <div class="ec-title">Naperville Student Civic Alliance — Founding Meeting</div>
+              <span class="ec-type et-community">Community-hosted</span>
+            </div>
+          </div>
+          <div class="ec-detail">4pm · Naperville North High School Library · Open to students, teachers, community · Founding a student civic research club focused on local government</div>
+          <div class="ec-host"><div class="ec-host-av">🎓</div><span style="font-size:10px;color:var(--muted)">Hosted by <strong>Jordan K., student</strong> · Ages 14–22 welcome</span></div>
+          <div class="ec-btns"><div class="ec-rsvp">RSVP</div><button class="ec-sec">Share</button></div>
+        </div>
+
+        <div class="event-card">
+          <div class="ec-top">
+            <div class="ec-date"><div class="ec-month">APR</div><div class="ec-day">15</div></div>
+            <div class="ec-main">
+              <div class="ec-title">Aurora School Board Meeting — Civics Curriculum Vote</div>
+              <span class="ec-type et-civic">Civic</span>
+            </div>
+          </div>
+          <div class="ec-detail">7pm · Aurora District Administration Center · Public comment open · This is your vote on whether civics gets taught properly in Aurora schools</div>
+          <div class="ec-btns"><div class="ec-rsvp">Set reminder</div><button class="ec-sec">Learn about public comment →</button></div>
+        </div>
+
+        <div class="event-card">
+          <div class="ec-top">
+            <div class="ec-date"><div class="ec-month">MAY</div><div class="ec-day">3</div></div>
+            <div class="ec-main">
+              <div class="ec-title">Ronald McDonald House Aurora — Family Night Volunteer</div>
+              <span class="ec-type et-philanthropy">Philanthropy</span>
+            </div>
+          </div>
+          <div class="ec-detail">5pm · Ronald McDonald House, Aurora · Prepare and serve dinner for families with hospitalized children · 8 volunteers needed</div>
+          <div class="ec-btns"><div class="ec-rsvp" style="background:var(--orange)">Volunteer</div><button class="ec-sec">Learn more</button></div>
+        </div>
+        <div style="height:12px"></div>
+      </div>
+
+      <!-- ══════════ COMMUNITY ══════════ -->
+      <div class="view" id="view-community">
+        <div class="comm-tabs">
+          <button class="ct active" onclick="switchComm(this,'challenges')">Challenges</button>
+          <button class="ct" onclick="switchComm(this,'groups')">Groups</button>
+          <button class="ct" onclick="switchComm(this,'orgs')">Organizations</button>
+          <button class="ct" onclick="switchComm(this,'petitions')">Petitions</button>
+          <button class="ct" onclick="switchComm(this,'ideas')">Ideas</button>
+        </div>
+
+        <!-- CHALLENGES -->
+        <div class="comm-view active" id="comm-challenges">
+          <div class="challenge">
+            <div class="ch-body">
+              <div class="ch-top">
+                <div class="ch-icon">📞</div>
+                <div class="ch-info">
+                  <div class="ch-title">1,000 contacts before April 2</div>
+                  <div class="ch-desc">Call or email Durbin about the drug pricing vote. 847 neighbors in. 153 to go.</div>
+                </div>
+                <div class="ch-reward cr-c">+5 Passport</div>
+              </div>
+              <div class="ch-prog-label"><span>847 of 1,000 completed</span><span>85%</span></div>
+              <div class="ch-prog-track"><div class="ch-prog-fill" style="width:85%;background:var(--green)"></div></div>
+              <button class="ch-joined">✓ You're in — keep going</button>
+            </div>
+          </div>
+          <div class="challenge">
+            <div class="ch-body">
+              <div class="ch-top">
+                <div class="ch-icon">🗳</div>
+                <div class="ch-info">
+                  <div class="ch-title">Read before you vote — IL Primary today</div>
+                  <div class="ch-desc">Read at least one candidate's full Civvy profile before casting your vote.</div>
+                </div>
+                <div class="ch-reward cr-p">+3 Passport</div>
+              </div>
+              <div class="ch-prog-label"><span>1,204 of 2,847 members</span><span>42%</span></div>
+              <div class="ch-prog-track"><div class="ch-prog-fill" style="width:42%"></div></div>
+              <button class="ch-join" onclick="this.textContent='✓ Joined';this.className='ch-joined'">Join this challenge</button>
+            </div>
+          </div>
+          <div class="challenge">
+            <div class="ch-body">
+              <div class="ch-top">
+                <div class="ch-icon">🏛</div>
+                <div class="ch-info">
+                  <div class="ch-title">Attend one local government meeting this month</div>
+                  <div class="ch-desc">City council, school board, zoning board — any verified local government meeting. You don't have to speak. Just show up.</div>
+                </div>
+                <div class="ch-reward cr-p">+5 Passport</div>
+              </div>
+              <div class="ch-prog-label"><span>89 of 2,847 members</span><span>3%</span></div>
+              <div class="ch-prog-track"><div class="ch-prog-fill" style="width:3%;background:var(--gold)"></div></div>
+              <button class="ch-join" style="background:var(--gold)" onclick="this.textContent='✓ Joined';this.className='ch-joined'">Join this challenge</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CIVIC GROUPS -->
+        <div class="comm-view" id="comm-groups">
+          <div style="font-size:10px;color:var(--muted);padding:4px 16px 10px;line-height:1.45">Citizen-created civic groups · Verified district members · Not affiliated with campaigns, PACs, or industry groups</div>
+          <div class="group-card">
+            <div class="gc-av" style="background:var(--sky)">🏛</div>
+            <div class="gc-info">
+              <div class="gc-name">Aurora Civic Action Group</div>
+              <div class="gc-desc">Organizing around drug pricing, local elections, civic education. Led the lead pipe petition. Weekly meetups and watch parties.</div>
+              <div class="gc-tags"><span class="gc-tag">Drug pricing</span><span class="gc-tag">Local gov</span><span class="gc-tag">Aurora</span></div>
+            </div>
+            <div class="gc-right"><div class="gc-members">147</div><div class="gc-label">members</div><div class="gc-v">✓ Verified</div></div>
+          </div>
+          <div class="group-card">
+            <div class="gc-av" style="background:#F3E8FF">🎓</div>
+            <div class="gc-info">
+              <div class="gc-name">Naperville Student Civic Alliance</div>
+              <div class="gc-desc">High school and college students researching local bills and attending government meetings. Founded March 2026. Open to ages 14–22.</div>
+              <div class="gc-tags"><span class="gc-tag">Students</span><span class="gc-tag">Naperville</span><span class="gc-tag">New</span></div>
+            </div>
+            <div class="gc-right"><div class="gc-members">23</div><div class="gc-label">members</div><div class="gc-v">✓ Verified</div></div>
+          </div>
+          <div class="group-card">
+            <div class="gc-av" style="background:var(--green-light)">🌿</div>
+            <div class="gc-info">
+              <div class="gc-name">IL-14 Climate Action Network</div>
+              <div class="gc-desc">Tracking climate legislation, local environmental votes, connecting members to public testimony opportunities.</div>
+              <div class="gc-tags"><span class="gc-tag">Climate</span><span class="gc-tag">Policy</span></div>
+            </div>
+            <div class="gc-right"><div class="gc-members">89</div><div class="gc-label">members</div><div class="gc-v">✓ Verified</div></div>
+          </div>
+          <button class="suggest-org" style="border-color:var(--accent)">
+            <span style="font-size:20px">➕</span>
+            <div><div style="font-size:12px;font-weight:600;color:var(--accent)">Start a civic group</div><div style="font-size:10px;color:var(--muted);margin-top:1px">Create a verified district group for any civic purpose</div></div>
+          </button>
+        </div>
+
+        <!-- ORGANIZATIONS (PHILANTHROPY) -->
+        <div class="comm-view" id="comm-orgs">
+          <div style="font-size:10px;color:var(--muted);padding:4px 16px 10px;line-height:1.5">This is the good-things tab. Local philanthropies, nonprofits, mutual aid groups, and causes doing real work in your community. No politics. No advocacy. Just good people doing good things.</div>
+
+          <div class="org-card">
+            <div class="oc-top">
+              <div class="oc-logo">🧹</div>
+              <div class="oc-info">
+                <div class="oc-name">Cleaning for a Reason</div>
+                <span class="oc-type">Health Support · National with IL chapter</span>
+              </div>
+            </div>
+            <div class="oc-desc">Provides free home cleaning services to people undergoing cancer treatment. Partner cleaning businesses donate their services. Families are referred by oncology teams and community members.</div>
+            <div class="oc-needs">
+              <div class="oc-needs-title">How you can help right now</div>
+              <div class="oc-need-row">🧹 Cleaning businesses — donate a service</div>
+              <div class="oc-need-row">💛 Refer a family battling cancer</div>
+              <div class="oc-need-row">📣 Spread the word in your network</div>
+            </div>
+            <div class="oc-civvy-member">✓ Civvy member Samantha — Lime Maids, VT — donates monthly</div>
+            <div class="oc-btns">
+              <div class="oc-vol">Get involved</div>
+              <button class="oc-give">Give →</button>
+            </div>
+          </div>
+
+          <div class="org-card">
+            <div class="oc-top">
+              <div class="oc-logo">🏠</div>
+              <div class="oc-info">
+                <div class="oc-name">Ronald McDonald House — Aurora</div>
+                <span class="oc-type">Family Support · Local chapter</span>
+              </div>
+            </div>
+            <div class="oc-desc">Free lodging and support for families of seriously ill children receiving treatment at local hospitals. Serves ~340 families per year from the Aurora area.</div>
+            <div class="oc-needs">
+              <div class="oc-needs-title">Immediate needs</div>
+              <div class="oc-need-row">🍳 Cook a family dinner (every Saturday)</div>
+              <div class="oc-need-row">🧺 Donate household supplies — list on website</div>
+              <div class="oc-need-row">💰 $25 feeds a family for one night</div>
+            </div>
+            <div class="oc-btns">
+              <div class="oc-vol">Volunteer</div>
+              <button class="oc-give">Give →</button>
+            </div>
+          </div>
+
+          <div class="org-card">
+            <div class="oc-top">
+              <div class="oc-logo">🥫</div>
+              <div class="oc-info">
+                <div class="oc-name">Northern Illinois Food Bank</div>
+                <span class="oc-type">Food Security · Regional</span>
+              </div>
+            </div>
+            <div class="oc-desc">Distributes food to 900+ partner agencies across 13 counties in northern Illinois. 1 in 9 residents in the region faces food insecurity. Every $1 donated provides 3 meals.</div>
+            <div class="oc-needs">
+              <div class="oc-needs-title">Current drives</div>
+              <div class="oc-need-row">📦 School supply drive ends March 31</div>
+              <div class="oc-need-row">🙋 Warehouse volunteers needed Tuesdays</div>
+            </div>
+            <div class="oc-btns">
+              <div class="oc-vol">Volunteer</div>
+              <button class="oc-give">Give →</button>
+            </div>
+          </div>
+
+          <div class="org-card">
+            <div class="oc-top">
+              <div class="oc-logo">📚</div>
+              <div class="oc-info">
+                <div class="oc-name">Aurora Public Library Foundation</div>
+                <span class="oc-type">Education &amp; Literacy · Local</span>
+              </div>
+            </div>
+            <div class="oc-desc">Funds programs the city budget doesn't cover — ESL classes, early literacy, teen makerspaces, senior tech literacy. The library is the most democratic institution in the district.</div>
+            <div class="oc-needs">
+              <div class="oc-needs-title">Right now</div>
+              <div class="oc-need-row">📖 Adult literacy tutors needed — 2hr/week</div>
+              <div class="oc-need-row">💻 Donate used laptops for digital access program</div>
+            </div>
+            <div class="oc-btns">
+              <div class="oc-vol">Volunteer</div>
+              <button class="oc-give">Give →</button>
+            </div>
+          </div>
+
+          <button class="suggest-org" style="border-color:var(--orange)">
+            <span style="font-size:20px">🌱</span>
+            <div><div style="font-size:12px;font-weight:600;color:var(--orange)">Suggest a local organization</div><div style="font-size:10px;color:var(--muted);margin-top:1px">Know a local philanthropy doing good work? Nominate them for the directory.</div></div>
+          </button>
+        </div>
+
+        <!-- PETITIONS -->
+        <div class="comm-view" id="comm-petitions">
+          <div style="font-size:10px;color:var(--muted);padding:4px 16px 10px;line-height:1.45">Verified signatures only · Sent directly to officials with district confirmation · These carry real political weight because they're verified</div>
+          <div class="petition">
+            <div style="font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;background:#F3E8FF;color:var(--purple);display:inline-block;margin-bottom:5px">📜 To: Sen. Dick Durbin</div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:4px">Vote YES on Medicare Drug Price Negotiation — April 2 vote</div>
+            <div class="pet-target-row">🎯 Goal: 2,500 verified IL-14 signatures before April 1</div>
+            <div class="pet-progress"><div class="pet-bar"><div class="pet-fill" style="width:76%"></div></div><div class="pet-count">1,904 / 2,500</div></div>
+            <button class="pet-sign" onclick="this.textContent='✓ Signed — 1,905 now';this.className='pet-signed'">Sign this petition</button>
+          </div>
+          <div class="petition">
+            <div style="font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;background:#EFF6FF;color:#1D4ED8;display:inline-block;margin-bottom:5px">📜 To: Aurora School Board</div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:4px">Adopt a verified civic education curriculum that includes real local government research</div>
+            <div class="pet-target-row">🎯 Goal: 500 verified Aurora district residents</div>
+            <div class="pet-progress"><div class="pet-bar"><div class="pet-fill" style="width:58%"></div></div><div class="pet-count">292 / 500</div></div>
+            <button class="pet-sign" onclick="this.textContent='✓ Signed';this.className='pet-signed'">Sign this petition</button>
+          </div>
+          <div class="petition">
+            <div style="font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700;background:var(--green-light);color:var(--green);display:inline-block;margin-bottom:5px">📜 To: Kane County Board</div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:4px">Publish all Kane County Board meeting agendas at least 72 hours in advance — not 24</div>
+            <div class="pet-target-row">🎯 Goal: 300 verified Kane County residents</div>
+            <div class="pet-progress"><div class="pet-bar"><div class="pet-fill" style="width:34%"></div></div><div class="pet-count">101 / 300</div></div>
+            <button class="pet-sign" onclick="this.textContent='✓ Signed';this.className='pet-signed'">Sign this petition</button>
+          </div>
+          <button class="suggest-org">
+            <span style="font-size:20px">📝</span>
+            <div><div style="font-size:12px;font-weight:600;color:var(--accent)">Start a verified petition</div><div style="font-size:10px;color:var(--muted);margin-top:1px">Direct any petition to an elected official, appointed official, or local government body</div></div>
+          </button>
+        </div>
+
+        <!-- IDEAS PORTAL -->
+        <div class="comm-view" id="comm-ideas">
+          <div class="ideas-tabs">
+            <button class="it active" onclick="switchIdeas(this,'civvy')">For Civvy</button>
+            <button class="it" onclick="switchIdeas(this,'community')">Community</button>
+            <button class="it" onclick="switchIdeas(this,'policy')">Policy ideas</button>
+          </div>
+          <div id="ideas-civvy">
+            <div class="idea">
+              <div class="idea-title">Show "who voted how" card in Home feed the morning after every major vote</div>
+              <div class="idea-body">I shouldn't have to go find it. A card showing how each of my reps voted, right in my feed, the morning after.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 284</div><span class="idea-by">Priya N. · 3 days ago</span><span class="idea-status is-plan">Planned</span></div>
+            </div>
+            <div class="idea">
+              <div class="idea-title">Push notification when a bill I'm tracking gets a vote scheduled</div>
+              <div class="idea-body">I follow the drug pricing bill but had no idea April 2 was coming. Real-time notification would change how I use this app.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 197</div><span class="idea-by">Marcus R. · 1 week ago</span><span class="idea-status is-rev">Reviewing</span></div>
+            </div>
+            <div class="idea">
+              <div class="idea-title">Spanish language version — Aurora has a large Spanish-speaking community</div>
+              <div class="idea-body">Civvy is incredible but it's only reaching English speakers right now. This tool should be for everyone.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 156</div><span class="idea-by">Sofia D. · 2 weeks ago</span><span class="idea-status is-plan">Planned</span></div>
+            </div>
+          </div>
+          <div id="ideas-community" style="display:none">
+            <div class="idea">
+              <div class="idea-title">Voter registration drive at Aurora Community Health Clinic</div>
+              <div class="idea-body">The clinic serves 4,200 uninsured patients — many are unregistered voters. A registration drive there could matter enormously.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 143</div><span class="idea-by">Maria T. · 5 days ago</span><span class="idea-status is-new">New</span></div>
+            </div>
+            <div class="idea">
+              <div class="idea-title">Civvy-hosted youth civic summit for IL-14 students before November</div>
+              <div class="idea-body">Bring together all the student civic groups forming in the district for a half-day summit. Research presentations, candidate Q&A, voter pledge.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 98</div><span class="idea-by">Jordan K. · 1 week ago</span><span class="idea-status is-new">New</span></div>
+            </div>
+            <div class="idea">
+              <div class="idea-title">Good news board — a dedicated space for positive things happening locally</div>
+              <div class="idea-body">Aurora lead pipe win. Cleaning for a Reason. Library funding saved. These stories exist but they don't have a home on the platform yet. They should.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 211</div><span class="idea-by">Wei C. · 2 days ago</span><span class="idea-status is-rev">Reviewing</span></div>
+            </div>
+          </div>
+          <div id="ideas-policy" style="display:none">
+            <div style="background:#FEF3C7;border-radius:9px;padding:9px 11px;margin:0 14px 9px;font-size:10px;color:#78350F;line-height:1.55">Policy ideas aren't petitions. They're proposals your community can discuss and refine. The best ones become polls, then petitions, then legislation.</div>
+            <div class="idea">
+              <div class="idea-title">Require IL-14 town halls to be transcribed and posted publicly within 48 hours</div>
+              <div class="idea-body">Durbin's town halls get recorded but transcripts rarely appear. Constituent accountability requires searchable records.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 211</div><span class="idea-by">Wei C. · 2 days ago</span><span class="idea-status is-rev">Gaining traction</span></div>
+            </div>
+            <div class="idea">
+              <div class="idea-title">All IL-14 candidates should complete a standard Civvy issue questionnaire — published or "declined to respond"</div>
+              <div class="idea-body">A standardized 10-question survey sent to every candidate before the election. Responses — and refusals — visible in their Civvy profile.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 178</div><span class="idea-by">Aisha B. · 4 days ago</span><span class="idea-status is-new">New</span></div>
+            </div>
+            <div class="idea">
+              <div class="idea-title">Require Kane County Board to hold at least one town hall per year in each municipality</div>
+              <div class="idea-body">The county board makes decisions that affect every resident but almost no one knows what it does or who's on it. Mandatory local access would start to change that.</div>
+              <div class="idea-foot"><div class="idea-votes">👍 134</div><span class="idea-by">Robert K. · 1 week ago</span><span class="idea-status is-new">New</span></div>
+            </div>
+          </div>
+          <button class="submit-idea">💡 Submit an idea</button>
+          <div style="height:14px"></div>
+        </div>
+
+      </div><!-- end community -->
+
+    </div><!-- end polis-body -->
+
+    <!-- BILL THREAD OVERLAY -->
+    <div class="overlay" id="bill-overlay">
+      <button class="back-btn" onclick="closeOverlay('bill-overlay')">← Polis</button>
+      <div class="thread-hero" style="background:linear-gradient(135deg,#1A1040,#2D1B69)">
+        <div style="display:flex;gap:5px;margin-bottom:5px;flex-wrap:wrap">
+          <span class="scope-tag st-national">🌐 National</span>
+          <span class="scope-tag st-district">📍 Durbin votes Apr 2</span>
+          <span style="font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(239,68,68,0.25);color:#FCA5A5;font-weight:700">⏰ 14 days</span>
+        </div>
+        <div style="color:white;font-family:'DM Serif Display',serif;font-size:17px;line-height:1.3;margin-bottom:9px">Medicare Drug Price Negotiation Act — is the 10-drug cap enough?</div>
+        <div class="th-stats">
+          <div class="th-stat"><span class="th-stat-val">78</span><span class="th-stat-label">Replies</span></div>
+          <div class="th-stat"><span class="th-stat-val">247</span><span class="th-stat-label">Reading</span></div>
+          <div class="th-stat"><span class="th-stat-val">79%</span><span class="th-stat-label">IL-14: YES</span></div>
+          <div class="th-stat"><span class="th-stat-val">Apr 2</span><span class="th-stat-label">Vote date</span></div>
+        </div>
+      </div>
+
+      <!-- CIVVY DATA CONTEXT -->
+      <div style="background:#F0F4FF;border-radius:11px;padding:10px 13px;margin:10px 14px 6px;font-size:11px;color:var(--accent);line-height:1.55">
+        📊 <strong>Civvy data on this bill:</strong> Pharma spent $372M lobbying against it. Durbin received $2.1M from pharma donors. 3 former Durbin staffers now lobby for pharma. He voted NO four times. <span style="font-weight:700;cursor:pointer">Full money trail →</span>
+      </div>
+
+      <!-- PARTY DISAGREE NOTE -->
+      <div style="background:#F9FAFB;border:1.5px dashed var(--border);border-radius:9px;padding:8px 12px;margin:0 14px 6px;font-size:10px;color:var(--muted);text-align:center;line-height:1.5">Your party and your rep are different things. All perspectives welcome — including disagreeing with your own side.</div>
+
+      <div style="font-size:10px;color:var(--muted);padding:4px 16px 6px">Most recent first · No upvotes · Verified IL-14 residents only</div>
+
+      <div class="comment">
+        <div class="c-head"><div class="c-av" style="background:var(--sky)">👩‍⚕️</div><span class="c-name">Maria T.</span><span class="c-badge cb-e">Pharmacist</span><span class="c-time">3h ago</span></div>
+        <div class="c-body">I work at a Naperville pharmacy. Eliquis is on the first negotiation list — my Medicare patients will pay $35/month instead of $180. That's real. But 10 drugs is genuinely not enough. What about Ozempic? Humira? The list of what didn't make it is almost as long as what did.</div>
+        <div class="c-reply">Reply ↩</div>
+      </div>
+
+      <div class="comment">
+        <div class="c-head"><div class="c-av" style="background:#FEF3C7">👴</div><span class="c-name">Robert K.</span><span class="c-badge cb-v">IL-14</span><span class="c-time">4h ago</span></div>
+        <div class="c-body">My wife takes Xarelto. $340/month. If this passes, we save $200/month. That's groceries. I've watched this bill get killed for 10 years. I'm a Republican and I don't care — pass it. You can expand it later.</div>
+        <div class="c-party-note">ⓘ Robert identifies as Republican and supports this bill. Both are welcome here.</div>
+        <div class="c-reply">Reply ↩</div>
+      </div>
+
+      <div class="comment">
+        <div class="c-head"><div class="c-av" style="background:#F3E8FF">🎓</div><span class="c-name">Jordan K.</span><span class="c-badge cb-v">Student</span><span class="c-time">5h ago</span></div>
+        <div class="c-body">I'm 19. First election cycle paying attention. I read the Civvy money trail on this — Durbin received $2.1M from pharma and voted NO on this exact bill four times. That data is hard to look away from. I don't know what I would need to hear to believe the donations aren't connected.</div>
+        <div class="c-reply">Reply ↩</div>
+      </div>
+
+      <div class="comment">
+        <div class="c-head"><div class="c-av" style="background:#F0FDF4)">💼</div><span class="c-name">Wei C.</span><span class="c-badge cb-v">IL-14</span><span class="c-time">6h ago</span></div>
+        <div class="c-body">Worth noting the other side: European countries that have negotiated prices have seen fewer new drug launches and less investment in rare disease research. I'm not saying that outweighs the cost crisis — but the tradeoff is real and I want us to be honest about it rather than pretending it doesn't exist.</div>
+        <div class="c-reply">Reply ↩</div>
+      </div>
+
+      <div style="text-align:center;padding:10px 0;font-size:11px;color:var(--accent);font-weight:600;cursor:pointer">Load 74 more replies →</div>
+      <div style="height:50px"></div>
+      <div class="comment-bar">
+        <input class="cb-input" placeholder="Add your voice — verified IL-14 only…">
+        <button class="cb-post">Post</button>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <button class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+      <button class="nav-item"><span class="nav-icon">📺</span><span class="nav-label">Learn</span></button>
+      <button class="nav-item"><span class="nav-icon">🏛</span><span class="nav-label">My Reps</span></button>
+      <button class="nav-item active"><span class="nav-icon" style="opacity:1">🗣</span><span class="nav-label" style="color:var(--accent);font-weight:600">Polis</span></button>
+      <button class="nav-item"><span class="nav-icon">🤝</span><span class="nav-label">Common</span></button>
+      <button class="nav-item"><span class="nav-icon">📘</span><span class="nav-label">Passport</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Main tab switching
+function switchMain(tab, btn) {
+  document.querySelectorAll('.mt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+}
+
+// Scope pills
+function setScope(btn) {
+  document.querySelectorAll('.scope-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Community sub-tabs
+function switchComm(btn, tab) {
+  document.querySelectorAll('.ct').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.comm-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('comm-'+tab).classList.add('active');
+}
+
+// Ideas portal tabs
+function switchIdeas(btn, tab) {
+  document.querySelectorAll('.it').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['civvy','community','policy'].forEach(t=>{
+    const el = document.getElementById('ideas-'+t);
+    if(el) el.style.display = t===tab ? 'block' : 'none';
+  });
+}
+
+// Overlay
+function openOverlay(id) { document.getElementById(id).classList.add('open'); }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+
+// Poll voting — vote and reveal
+function votePoll(btn, pollId) {
+  const opts = document.getElementById(pollId+'-opts');
+  opts.querySelectorAll('.pc-opt').forEach(o=>{
+    o.classList.remove('voted');
+    o.querySelector('.pc-radio').style.background='transparent';
+  });
+  btn.classList.add('voted');
+  btn.querySelector('.pc-radio').style.background='var(--accent)';
+  setTimeout(()=>{
+    opts.style.display='none';
+    document.getElementById(pollId+'-results').style.display='block';
+  },400);
+}
+
+// RCV drag-and-drop
+let dragSrc=null;
+function ds(e){dragSrc=e.currentTarget;e.dataTransfer.effectAllowed='move'}
+function dv(e){e.preventDefault();e.dataTransfer.dropEffect='move';return false}
+function dp(e){
+  e.stopPropagation();
+  if(dragSrc!==e.currentTarget){
+    const list=document.getElementById('rcv-list');
+    const items=[...list.querySelectorAll('.rcv-item')];
+    const si=items.indexOf(dragSrc),di=items.indexOf(e.currentTarget);
+    if(si<di)list.insertBefore(dragSrc,e.currentTarget.nextSibling);
+    else list.insertBefore(dragSrc,e.currentTarget);
+    [...list.querySelectorAll('.rcv-item')].forEach((item,i)=>{
+      item.querySelector('.rcv-rank').textContent=i+1;
+    });
+  }
+  return false;
+}
+function submitRCV(){
+  document.getElementById('rcv-list').style.display='none';
+  document.querySelector('.rcv-submit').style.display='none';
+  document.getElementById('rcv-results').style.display='block';
+}
+</script>
+</body>
+</html>
